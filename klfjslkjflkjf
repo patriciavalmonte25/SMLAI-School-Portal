@@ -1,0 +1,38 @@
+[33m3428a0e[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m Fix webpack@5.90.0 compatibility, build production assets
+[33m10a2e96[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m Fixed Improper Privileged Management
+[33m6c6d138[m Fixed Improper Access Control on view Student List
+[33m649b708[m Merge pull request #48 from JamieSlome/patch-1
+[33m857c2ea[m Create SECURITY.md
+[33m31ff2b5[m Minor bug fix, Add Contact for Security Report
+[33m8f8d922[m Fixed Photo Upload Error for Users
+[33m4b4e406[m Fixed Bug in Settings
+[33mf120abe[m Fix Target Class NotFound
+[33m1cbfa1c[m update Readme & Bug fix
+[33m89294d5[m Seeders update
+[33me4ec287[m Code Cleanup
+[33m96bde02[m Update readme.md
+[33mc536ce8[m Update readme.md
+[33m76f14f9[m Update readme.md
+[33mb5e12ee[m Update readme.md
+[33m12dcfaf[m Update to Laravel 8.4 with PHP v8 Support & Reduced Marksheet Complexity
+[33m85d7072[m Create LICENSE
+[33mc67f61e[m Merge pull request #20 from shailesh-matariya/master
+[33m45bb6f0[m parent_id fix on edit student page
+[33m7c65701[m Bug Fix
+[33m4de82a9[m Created Seeder for Many Students
+[33mae81991[m Created Seeder for Many Students
+[33m74a2bc6[m Created Seeder for Many Students
+[33m113e5bf[m Added Login Credentials
+[33m6973109[m Bug Fixes & Laravel 8 Upgrade
+[33m3ca3be6[m Updated Super Admin Modification Constraints
+[33mc71ed5b[m Updated Super Admin Modification Constraints
+[33mbfee6bf[m Fixed Promotions
+[33m966d8e2[m Modified ReportCard
+[33mf1af41f[m Modified ReportCard
+[33m0f81948[m Modified ReportCard
+[33m9c471b9[m Added Privacy Policy
+[33m31a526b[m Resolves Security Issues
+[33mf741504[m Code Refactoring
+[33m513c4a8[m Updated App Description
+[33m0a73d53[m First Commit
+[33m14f872b[m First Commit
