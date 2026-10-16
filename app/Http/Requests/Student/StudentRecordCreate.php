@@ -36,7 +36,6 @@ class StudentRecordCreate extends FormRequest
             'my_class_id' => 'required',
             'section_id' => 'required',
             'my_parent_id' => 'sometimes|nullable',
-            'dorm_id' => 'sometimes|nullable',
         ];
     }
 
@@ -46,7 +45,6 @@ class StudentRecordCreate extends FormRequest
             'section_id' => 'Section',
             'nal_id' => 'Nationality',
             'my_class_id' => 'Class',
-            'dorm_id' => 'Dormitory',
             'state_id' => 'State',
             'lga_id' => 'LGA',
             'bg_id' => 'Blood Group',

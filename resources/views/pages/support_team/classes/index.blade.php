@@ -2,12 +2,93 @@
 @section('page_title', 'Manage Classes')
 @section('content')
 
+    <style>
+        .bulk-toolbar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .selection-counter {
+            display: none;
+            align-self: center;
+            white-space: nowrap;
+            cursor: default;
+        }
+
+        .class-table-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .class-table-controls .bulk-toolbar {
+            margin-bottom: 0;
+        }
+
+        .class-table-controls .dataTables_filter {
+            margin: 0;
+        }
+
+        #manage-classes-table .action-column {
+            width: 76px !important;
+            min-width: 76px;
+            max-width: 76px;
+            white-space: nowrap;
+        }
+
+        #manage-classes-table .class-code-column {
+            width: 128px !important;
+            min-width: 128px;
+            max-width: 128px;
+        }
+
+        #manage-classes-table tbody .class-code-column {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        #manage-classes-table thead th {
+            padding-right: 2.5rem;
+            white-space: nowrap;
+        }
+
+        .select-mode .select-column,
+        .select-mode .select-cell {
+            display: table-cell !important;
+        }
+
+        .select-column,
+        .select-cell {
+            display: none;
+            width: 48px;
+            text-align: center;
+        }
+
+        .select-mode tbody tr.selectable-row {
+            cursor: pointer;
+        }
+
+        .select-mode tbody tr.row-selected {
+            background-color: #d9dee3;
+        }
+
+        .select-mode tbody tr.row-selected > td {
+            background-color: #d9dee3 !important;
+        }
+    </style>
+
     <div class="card">
         <div class="card-header header-elements-inline">
             <h6 class="card-title">Manage Classes</h6>
-            {!! Qs::getPanelOptions() !!}
         </div>
 
+        
         <div class="card-body">
             <ul class="nav nav-tabs nav-tabs-highlight">
                 <li class="nav-item"><a href="#all-classes" class="nav-link active" data-toggle="tab">Manage Classes</a></li>
@@ -16,47 +97,55 @@
 
             <div class="tab-content">
                     <div class="tab-pane fade show active" id="all-classes">
-                        <table class="table datatable-button-html5-columns">
+                        <div class="bulk-delete-form">
+                            @if(Qs::userIsAdministrator() || Qs::userIsRegistrar())
+                                <div class="bulk-toolbar">
+                                    <span class="selection-counter text-muted" aria-live="polite">0 of {{ $my_classes->count() }} entries selected</span>
+                                    <button type="button" class="btn btn-light btn-sm toggle-select-mode">Select</button>
+                                    <button type="button" class="btn btn-danger btn-sm delete-selected" style="display:none;">Delete Selected</button>
+                                    <button type="button" class="btn btn-outline-primary btn-sm select-all" style="display:none;">Select All</button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm clear-selection" style="display:none;">Deselect All</button>
+                                </div>
+                                <form method="POST" action="{{ route('classes.delete_selected') }}" class="bulk-delete-submit-form" style="display:none;">
+                                    @csrf
+                                </form>
+                            @endif
+
+                        <table id="manage-classes-table" class="table bulk-select-table">
                             <thead>
                             <tr>
-                                <th>S/N</th>
+                                @if(Qs::userIsAdministrator() || Qs::userIsRegistrar())
+                                    <th class="select-column"><i class="icon-checkmark-circle"></i></th>
+                                @endif
+                                <th class="class-code-column">Class Code</th>
                                 <th>Name</th>
                                 <th>Class Type</th>
-                                <th>Action</th>
+                                <th class="action-column">Edit</th>
                             </tr>
                             </thead>
                             <tbody>
                             @foreach($my_classes as $c)
-                                <tr>
-                                    <td>{{ $loop->iteration }}</td>
+                                <tr class="selectable-row">
+                                    @if(Qs::userIsAdministrator() || Qs::userIsRegistrar())
+                                        <td class="select-cell">
+                                            <input type="checkbox" name="class_ids[]" value="{{ $c->id }}" class="bulk-select-checkbox">
+                                        </td>
+                                    @endif
+                                    <td class="class-code-column">{{ $c->code ?? '' }}</td>
                                     <td>{{ $c->name }}</td>
-                                    <td>{{ $c->class_type->name }}</td>
-                                    <td class="text-center">
+                                    <td>{{ optional($c->class_type)->name ?: 'Unassigned' }}</td>
+                                    <td class="text-center action-cell action-column">
                                         <div class="list-icons">
-                                            <div class="dropdown">
-                                                <a href="#" class="list-icons-item" data-toggle="dropdown">
-                                                    <i class="icon-menu9"></i>
-                                                </a>
-
-                                                <div class="dropdown-menu dropdown-menu-left">
-                                                    @if(Qs::userIsTeamSA())
-                                                    {{--Edit--}}
-                                                    <a href="{{ route('classes.edit', $c->id) }}" class="dropdown-item"><i class="icon-pencil"></i> Edit</a>
-                                                   @endif
-                                                        @if(Qs::userIsSuperAdmin())
-                                                    {{--Delete--}}
-                                                    <a id="{{ $c->id }}" onclick="confirmDelete(this.id)" href="#" class="dropdown-item"><i class="icon-trash"></i> Delete</a>
-                                                    <form method="post" id="item-delete-{{ $c->id }}" action="{{ route('classes.destroy', $c->id) }}" class="hidden">@csrf @method('delete')</form>
-                                                        @endif
-
-                                                </div>
-                                            </div>
+                                            <a href="{{ route('classes.edit', $c->id) }}" class="list-icons-item" title="Edit {{ $c->name }}">
+                                                <i class="icon-paragraph-justify3"></i>
+                                            </a>
                                         </div>
                                     </td>
                                 </tr>
                             @endforeach
                             </tbody>
                         </table>
+                        </div>
                     </div>
 
                 <div class="tab-pane fade" id="new-class">
@@ -78,6 +167,13 @@
                                     <label class="col-lg-3 col-form-label font-weight-semibold">Name <span class="text-danger">*</span></label>
                                     <div class="col-lg-9">
                                         <input name="name" value="{{ old('name') }}" required type="text" class="form-control" placeholder="Name of Class">
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label font-weight-semibold">Class Code <span class="text-danger">*</span></label>
+                                    <div class="col-lg-9">
+                                        <input name="code" value="{{ old('code') }}" required type="text" class="form-control" placeholder="Class Code">
                                     </div>
                                 </div>
 
@@ -105,4 +201,165 @@
 
     {{--Class List Ends--}}
 
+@endsection
+
+@section('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var selector = '#manage-classes-table';
+
+            $(selector).DataTable({
+                autoWidth: false,
+                lengthChange: false,
+                paging: false,
+                info: false,
+                columnDefs: [{ targets: -1, width: '76px', orderable: false }],
+                dom: '<"class-table-controls"f>rt'
+            });
+
+            var controlsRow = document.querySelector('#manage-classes-table_wrapper .class-table-controls');
+            var bulkToolbar = document.querySelector('.bulk-toolbar');
+            if (controlsRow && bulkToolbar) {
+                controlsRow.appendChild(bulkToolbar);
+            }
+
+            document.querySelectorAll('.bulk-delete-form').forEach(function (form) {
+                var table = form.querySelector('.bulk-select-table');
+                var submitForm = form.querySelector('.bulk-delete-submit-form');
+                var toggleButton = form.querySelector('.toggle-select-mode');
+                var deleteButton = form.querySelector('.delete-selected');
+                var selectAllButton = form.querySelector('.select-all');
+                var clearButton = form.querySelector('.clear-selection');
+                var selectionCounter = form.querySelector('.selection-counter');
+                var checkboxes = Array.prototype.slice.call(form.querySelectorAll('.bulk-select-checkbox'));
+
+                if (!table || !toggleButton || !deleteButton || !selectAllButton || !clearButton || !submitForm) {
+                    return;
+                }
+
+                function selectedCount() {
+                    return checkboxes.filter(function (checkbox) {
+                        return checkbox.checked;
+                    }).length;
+                }
+
+                function updateDeleteButtonState() {
+                    deleteButton.disabled = selectedCount() === 0;
+                    if (selectionCounter) {
+                        selectionCounter.textContent = selectedCount() + ' of ' + checkboxes.length + ' entries selected';
+                    }
+                }
+
+                function syncRowState(checkbox) {
+                    var row = checkbox.closest('tr');
+                    if (!row) {
+                        return;
+                    }
+
+                    row.classList.toggle('row-selected', checkbox.checked);
+                }
+
+                function clearSelection() {
+                    checkboxes.forEach(function (checkbox) {
+                        checkbox.checked = false;
+                        syncRowState(checkbox);
+                    });
+                    updateDeleteButtonState();
+                }
+
+                checkboxes.forEach(function (checkbox) {
+                    checkbox.addEventListener('change', function () {
+                        syncRowState(checkbox);
+                        updateDeleteButtonState();
+                    });
+                });
+
+                table.addEventListener('click', function (event) {
+                    if (!table.classList.contains('select-mode') || event.target.closest('.action-cell')) {
+                        return;
+                    }
+
+                    if (event.target.closest('a') || event.target.closest('button') || event.target.closest('input')) {
+                        return;
+                    }
+
+                    var row = event.target.closest('tr.selectable-row');
+                    var checkbox = row && row.querySelector('.bulk-select-checkbox');
+                    if (!checkbox) {
+                        return;
+                    }
+
+                    checkbox.checked = !checkbox.checked;
+                    syncRowState(checkbox);
+                    updateDeleteButtonState();
+                });
+
+                toggleButton.addEventListener('click', function () {
+                    var selectMode = table.classList.toggle('select-mode');
+
+                    deleteButton.style.display = selectMode ? 'inline-block' : 'none';
+                    selectAllButton.style.display = selectMode ? 'inline-block' : 'none';
+                    clearButton.style.display = selectMode ? 'inline-block' : 'none';
+                    if (selectionCounter) {
+                        selectionCounter.style.display = selectMode ? 'inline-block' : 'none';
+                    }
+                    toggleButton.textContent = selectMode ? 'Cancel' : 'Select';
+
+                    if (!selectMode) {
+                        clearSelection();
+                    }
+                });
+
+                selectAllButton.addEventListener('click', function () {
+                    checkboxes.forEach(function (checkbox) {
+                        checkbox.checked = true;
+                        syncRowState(checkbox);
+                    });
+                    updateDeleteButtonState();
+                });
+
+                clearButton.addEventListener('click', clearSelection);
+
+                deleteButton.addEventListener('click', function () {
+                    var totalSelected = selectedCount();
+                    if (totalSelected === 0) {
+                        return;
+                    }
+
+                    swal({
+                        title: 'Confirm Deletion',
+                        text: 'You are about to delete ' + totalSelected + ' classes and all associated records, including sections, subjects, student records, marks, exams, books, payments, and Timetables. This cannot be undone. Proceed?',
+                        icon: 'warning',
+                        dangerMode: true,
+                        buttons: {
+                            cancel: 'Cancel',
+                            confirm: 'Proceed'
+                        }
+                    }).then(function (confirmed) {
+                        if (!confirmed) {
+                            return;
+                        }
+
+                        submitForm.querySelectorAll('input[name="class_ids[]"]').forEach(function (input) {
+                            input.remove();
+                        });
+
+                        checkboxes.filter(function (checkbox) {
+                            return checkbox.checked;
+                        }).forEach(function (checkbox) {
+                            var input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = 'class_ids[]';
+                            input.value = checkbox.value;
+                            submitForm.appendChild(input);
+                        });
+
+                        submitForm.submit();
+                    });
+                });
+
+                updateDeleteButtonState();
+            });
+        });
+    </script>
 @endsection

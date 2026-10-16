@@ -21,6 +21,7 @@ class ClassCreate extends FormRequest
     {
         return [
             'name' => 'required|string|min:3',
+            'code' => 'required|string|min:1|max:20',
             'class_type_id' => 'required|exists:class_types,id',
         ];
     }
@@ -28,6 +29,7 @@ class ClassCreate extends FormRequest
     public function attributes()
     {
         return  [
+            'code' => 'Class Code',
             'class_type_id' => 'Class Type',
         ];
     }

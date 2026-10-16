@@ -27,7 +27,7 @@
 
 There are 7 types of user accounts. They include:
  
-Administrators (Super Admin & Admin)
+Administrator & Admin
 - Librarian
 - Accountant
 - Teacher
@@ -49,7 +49,7 @@ After seeding. Login details as follows:
 
 | Account Type  | Username | Email | Password |
 | ------------- | -------- | ----- | -------- |
-| Super Admin | cj | cj@cj.com | cj |
+| Administrator | cj | cj@cj.com | cj |
 |  Admin | admin | admin@admin.com | cj |
 |  Teacher | teacher | teacher@teacher.com | cj |
 |  Parent | parent | parent@parent.com | cj |
@@ -58,11 +58,11 @@ After seeding. Login details as follows:
 
 #### **FUNCTIONS OF ACCOUNTS** 
 
-**-- SUPER ADMIN**
-- Only Super Admin can delete any record
+**-- ADMINISTRATOR**
+- Only Administrator can delete any record
 - Create any user account
  
-**-- Administrators (Super Admin & Admin)**
+**-- Administrator & Admin**
 
 - Manage students class/sections
 - View marksheet of students
@@ -91,7 +91,7 @@ After seeding. Login details as follows:
 **-- STUDENT**
 - View teacher profile
 - View own class subjects
-- View own marks and class timetable
+- View own marks and class Timetable
 - View Payments
 - View library and book status
 - View noticeboard and school events in calendar

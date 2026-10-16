@@ -21,7 +21,6 @@ class SettingUpdate extends FormRequest
     {
         return [
             'system_name' => 'required|string|min:10',
-            'current_session' => 'required|string',
             'address' => 'required|string|min:15',
             'system_email' => 'sometimes|nullable|email',
             'lock_exam' => 'required',
@@ -35,7 +34,6 @@ class SettingUpdate extends FormRequest
         return  [
             'system_name' => 'School Name',
             'system_email' => 'School Email',
-            'current_session' => 'Current Session',
         ];
     }
 

@@ -2,3 +2,90 @@
     border: 1px solid #000;
     border-collapse: collapse;
 }
+
+/* Keep long content inside its containing panels. */
+.card,
+.card-body,
+.card-header,
+.content,
+.content-wrapper,
+.row,
+[class*="col-"] {
+    min-width: 0;
+}
+
+.card,
+.card-body,
+.card-header,
+.table-responsive,
+.form-group,
+.media-body {
+    overflow-wrap: anywhere;
+    word-break: normal;
+}
+
+.table {
+    width: 100%;
+    max-width: 100%;
+    table-layout: fixed;
+}
+
+.table th,
+.table td {
+    max-width: 100%;
+    padding: 8px 12px;
+    overflow-wrap: break-word;
+    word-break: normal;
+    white-space: normal;
+}
+
+.temporary-account-details-table th:first-child {
+    width: 42%;
+}
+
+.temporary-account-details-table td:last-child {
+    width: 58%;
+}
+
+.form-control,
+.custom-select,
+select,
+textarea,
+input {
+    max-width: 100%;
+    min-width: 0;
+}
+
+@media (max-width: 767.98px) {
+    .content {
+        padding: 0.75rem;
+    }
+
+    .card-body,
+    .card-header {
+        padding: 0.75rem;
+    }
+
+    .table th,
+    .table td {
+        padding: 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    .form-group.row {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .form-group.row > label,
+    .form-group.row > [class*="col-"] {
+        padding-left: 0;
+        padding-right: 0;
+        max-width: 100%;
+        flex: 0 0 100%;
+    }
+
+    .form-group.row > label {
+        margin-bottom: 0.25rem;
+    }
+}

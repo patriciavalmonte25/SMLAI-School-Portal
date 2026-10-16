@@ -15,6 +15,20 @@
 
 {{--DataTables--}}
 <script src="{{ asset('global_assets/js/plugins/tables/datatables/datatables.min.js') }}"></script>
+<script>
+	(function ($) {
+		var actionHeaders = document.querySelectorAll('table thead th');
+		actionHeaders.forEach(function (header) {
+			if (/^(action|actions|edit)$/i.test(header.textContent.replace(/\s+/g, ' ').trim())) {
+				header.classList.add('action-column');
+			}
+		});
+
+		var columnDefs = $.fn.dataTable.defaults.columnDefs || [];
+		columnDefs.push({ targets: 'action-column', orderable: false });
+		$.fn.dataTable.defaults.columnDefs = columnDefs;
+	})(window.jQuery);
+</script>
 <script src="{{ asset('global_assets/js/plugins/tables/datatables/extensions/jszip/jszip.min.js') }}"></script>
 <script src="{{ asset('global_assets/js/plugins/tables/datatables/extensions/pdfmake/pdfmake.min.js') }}"></script>
 <script src="{{ asset('global_assets/js/plugins/tables/datatables/extensions/pdfmake/vfs_fonts.min.js') }}"></script>
@@ -35,7 +49,7 @@
 <script src=" {{ asset('assets/js/app.js') }} "></script>
 <script src="{{ asset('global_assets/js/demo_pages/form_wizard.js') }}"></script>
 <script src="{{ asset('global_assets/js/demo_pages/form_select2.js') }}"></script>
-<script src="{{ asset('global_assets/js/demo_pages/datatables_extension_buttons_html5.js') }}"></script>
+<script src="{{ asset('global_assets/js/demo_pages/datatables_extension_buttons_html5.js') }}?v=20261008-no-table-controls"></script>
 <script src="{{ asset('global_assets/js/demo_pages/uploader_bootstrap.js') }}"></script>
 <script src="{{ asset('global_assets/js/demo_pages/fullcalendar_basic.js') }}"></script>
 

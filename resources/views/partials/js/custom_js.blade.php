@@ -1,6 +1,6 @@
 <script>
 
-    function getLGA(state_id){
+    function getLGA(state_id, selected_lga_id){
         var url = '{{ route('get_lga', [':id']) }}';
         url = url.replace(':id', state_id);
         var lga = $('#lga_id');
@@ -9,13 +9,17 @@
             dataType: 'json',
             url: url,
             success: function (resp) {
-                //console.log(resp);
                 lga.empty();
+                lga.append($('<option>', { value: '', text: '' }));
                 $.each(resp, function (i, data) {
-                    lga.append($('<option>', {
+                    var option = $('<option>', {
                         value: data.id,
                         text: data.name
-                    }));
+                    });
+                    if (selected_lga_id && String(selected_lga_id) === String(data.id)) {
+                        option.attr('selected', 'selected');
+                    }
+                    lga.append(option);
                 });
 
             }
@@ -86,7 +90,7 @@
     @endif
 
  @if (session('pop_success'))
-    pop({msg : '{{ session('pop_success') }}', type : 'success', title: 'GREAT!!'});
+    pop({msg : '{{ session('pop_success') }}', type : 'success', title: 'SUBMISSION NOTICE'});
     @endif
 
     @if (session('flash_info'))
@@ -108,7 +112,7 @@
     {{--End Notifications--}}
 
     function pop(data){
-        swal({
+        return swal({
             title: data.title ? data.title : 'Oops...',
             text: data.msg,
             icon: data.type
@@ -116,10 +120,14 @@
     }
 
     function flash(data){
+        var persistent = data.type === 'danger' || data.type === 'error' || data.type === 'warning';
         new PNotify({
             text: data.msg,
             type: data.type,
-            hide : data.type !== "danger"
+            delay: persistent ? 0 : 2000,
+            hide: !persistent,
+            closer: true,
+            sticker: false
         });
     }
 
@@ -152,9 +160,11 @@
     }
 
     $('form#ajax-reg').on('submit', function(ev){
+        if (ev.isDefaultPrevented()) {
+            return;
+        }
         ev.preventDefault();
-        submitForm($(this), 'store');
-        $('#ajax-reg-t-0').get(0).click();
+        submitWithConfirmation($(this), 'store');
     });
 
     $('form.ajax-pay').on('submit', function(ev){
@@ -184,10 +194,15 @@
     });
 
     $('form.ajax-store').on('submit', function(ev){
+        if (ev.isDefaultPrevented()) {
+            return;
+        }
         ev.preventDefault();
-        submitForm($(this), 'store');
-        var div = $(this).data('reload');
-        div ? reloadDiv(div) : '';
+        var form = $(this);
+        submitWithConfirmation(form, 'store', function(){
+            var div = form.data('reload');
+            div ? reloadDiv(div) : '';
+        });
     });
 
     $('form.ajax-update').on('submit', function(ev){
@@ -209,6 +224,31 @@
         $(div).load( url );
     }
 
+    function submitWithConfirmation(form, formType, onConfirmed){
+        var submit = function(){
+            submitForm(form, formType);
+            if (onConfirmed) {
+                onConfirmed();
+            }
+        };
+
+        if (!form.data('confirm-submit')) {
+            submit();
+            return;
+        }
+
+        swal({
+            title: form.data('confirm-title') || 'Confirm account creation',
+            text: form.data('confirm-message') || 'Create this account now?',
+            icon: 'warning',
+            buttons: ['Cancel', form.data('confirm-label') || 'Create Account']
+        }).then(function(confirmed){
+            if (confirmed) {
+                submit();
+            }
+        });
+    }
+
     function submitForm(form, formType){
         var btn = form.find('button[type=submit]');
         disableBtn(btn);
@@ -223,12 +263,27 @@
         };
         var req = $.ajax(ajaxOptions);
         req.done(function(resp){
-            resp.ok && resp.msg
-               ? flash({msg:resp.msg, type:'success'})
-               : flash({msg:resp.msg, type:'danger'});
+            var successDialog = null;
+            if (resp.ok && resp.msg && form.data('success-popup')) {
+                successDialog = pop({msg: resp.msg, type: 'success', title: form.data('success-title') || 'Success'});
+            } else {
+                resp.ok && resp.msg
+                   ? flash({msg:resp.msg, type:'success'})
+                   : flash({msg:resp.msg, type:'danger'});
+            }
             hideAjaxAlert();
             enableBtn(btn);
             formType == 'store' ? clearForm(form) : '';
+            if (resp.ok && resp.url && form.data('follow-success-url')) {
+                if (successDialog) {
+                    successDialog.then(function(){
+                        window.location.assign(resp.url);
+                    });
+                } else {
+                    window.location.assign(resp.url);
+                }
+                return;
+            }
             scrollTo('body');
             return resp;
         });
@@ -238,10 +293,11 @@
                 displayAjaxErr(errors);
             }
            if(e.status == 500){
-               displayAjaxErr([e.status + ' ' + e.statusText + ' Please Check for Duplicate entry or Contact School Administrator/IT Personnel'])
+               var msg = (e.responseJSON && e.responseJSON.message) ? e.responseJSON.message : 'An unexpected server error occurred. Please try again.';
+               displayAjaxErr([msg]);
            }
             if(e.status == 404){
-               displayAjaxErr([e.status + ' ' + e.statusText + ' - Requested Resource or Record Not Found'])
+               displayAjaxErr([e.status + ' ' + e.statusText + ' - Requested Resource or Record Not Found']);
            }
             enableBtn(btn);
             return e.status;
@@ -259,7 +315,7 @@
     }
 
     function displayAjaxErr(errors){
-        $('#ajax-alert').show().html(' <div class="alert alert-danger border-0 alert-dismissible" id="ajax-msg"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button></div>');
+        $('#ajax-alert').stop(true, true).show().html(' <div class="alert alert-danger border-0 alert-dismissible" id="ajax-msg"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button></div>');
         $.each(errors, function(k, v){
             $('#ajax-msg').append('<span><i class="icon-arrow-right5"></i> '+ v +'</span><br/>');
         });
@@ -278,8 +334,65 @@
 
     function clearForm(form){
         form.find('.select, .select-search').val([]).select2({ placeholder: 'Select...'});
+        form.find('input[type="text"], input[type="email"], input[type="password"], input[type="number"], textarea').val('');
+        form.find('.date-pick').val('');
         form[0].reset();
     }
+
+    document.querySelectorAll('[data-list-filter]').forEach(function(searchInput){
+        var table = document.getElementById(searchInput.dataset.listFilter);
+        var emptyMessage = document.querySelector('[data-list-filter-empty-for="' + searchInput.dataset.listFilter + '"]');
+        if (!table) {
+            return;
+        }
+
+        var rows = Array.prototype.slice.call(table.querySelectorAll('tbody tr.selectable-row'));
+        searchInput.addEventListener('input', function(){
+            var query = searchInput.value.trim().toLocaleLowerCase();
+            var visibleRows = 0;
+
+            rows.forEach(function(row){
+                var matches = row.textContent.toLocaleLowerCase().indexOf(query) !== -1;
+                row.hidden = !matches;
+                if (matches) {
+                    visibleRows++;
+                } else {
+                    row.querySelectorAll('.bulk-select-checkbox:checked').forEach(function(checkbox){
+                        checkbox.checked = false;
+                        checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+                    });
+                }
+            });
+
+            if (emptyMessage) {
+                emptyMessage.hidden = !query || visibleRows > 0 || rows.length === 0;
+            }
+        });
+    });
+
+    document.addEventListener('keydown', function(event){
+        if (!event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) {
+            return;
+        }
+
+        var key = event.key.toLowerCase();
+        var prefix = key === 'z' ? 'undo-' : (key === 'y' ? 'redo-' : null);
+        if (!prefix) {
+            return;
+        }
+
+        var button = Array.prototype.find.call(
+            document.querySelectorAll('button[id^="' + prefix + '"]'),
+            function(candidate) {
+                return !candidate.disabled && candidate.getClientRects().length > 0;
+            }
+        );
+
+        if (button) {
+            event.preventDefault();
+            button.click();
+        }
+    });
 
 
 

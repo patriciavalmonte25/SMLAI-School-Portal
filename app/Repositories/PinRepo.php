@@ -3,54 +3,46 @@
 namespace App\Repositories;
 
 use App\Models\Pin;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class PinRepo
 {
-
-    public function create($data)
-    {
-        return DB::table('pins')->insert($data);
-    }
-
     public function countValid()
     {
-        return $this->getPin(['used' => 0])->count();
-    }
-
-    public function update($id, $data)
-    {
-        return Pin::find($id)->update($data);
-    }
-
-    public function getUserPin($code, $user_id, $st_id)
-    {
-        return  $this->getPin(['code' => $code, 'user_id' => $user_id, 'student_id' => $st_id])->get();
-    }
-
-    public function findValidCode($code)
-    {
-        return  $this->getPin(['code' => $code, 'used' => 0])->get();
-    }
-
-    public function deleteUsed()
-    {
-        return $this->getPin(['used' => 1])->delete();
-    }
-
-    public function getPin($data)
-    {
-        return Pin::where($data);
+        return Pin::where('used', 0)->count();
     }
 
     public function getValid()
     {
-        return $this->getPin(['used' => 0])->get();
+        return Pin::where('used', 0)->orderBy('id', 'desc')->get();
     }
 
     public function getInValid()
     {
-        return $this->getPin(['used' => 1])->with(['user', 'student'])->get();
+        return Pin::where('used', 1)->orderBy('id', 'desc')->get();
+    }
+
+    public function findValidCode($code)
+    {
+        return Pin::where(['code' => $code, 'used' => 0]);
+    }
+
+    public function getUserPin($code, $user_id, $student_id)
+    {
+        return Pin::where(['code' => $code, 'user_id' => $user_id, 'student_id' => $student_id, 'used' => 0]);
+    }
+
+    public function update($id, array $data)
+    {
+        return Pin::find($id)->update($data);
+    }
+
+    public function create(array $data)
+    {
+        return Pin::insert($data);
+    }
+
+    public function deleteUsed()
+    {
+        return Pin::where('used', 1)->delete();
     }
 }

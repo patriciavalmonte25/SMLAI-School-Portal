@@ -19,8 +19,6 @@
 <div class="page-content">
     @include('partials.menu')
     <div class="content-wrapper">
-        @include('partials.header')
-
         <div class="content">
             {{--Error Alert Area--}}
             @if($errors->any())

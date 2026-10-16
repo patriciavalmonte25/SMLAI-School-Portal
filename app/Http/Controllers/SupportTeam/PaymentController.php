@@ -27,6 +27,14 @@ class PaymentController extends Controller
         $this->year = Qs::getCurrentSession();
         $this->student = $student;
 
+        $this->middleware(function ($request, $next) {
+            if (Qs::userIsAdministrator()) {
+                return Qs::goToRoute(['dashboard']);
+            }
+
+            return $next($request);
+        });
+
         $this->middleware('teamAccount');
     }
 

@@ -8,6 +8,71 @@
     <link href=" {{ asset('assets/css/layout.min.css') }}" rel="stylesheet" type="text/css">
     <link href=" {{ asset('assets/css/components.min.css') }}" rel="stylesheet" type="text/css">
     <link href=" {{ asset('assets/css/colors.min.css') }}" rel="stylesheet" type="text/css">
+    <style>
+        .dataTables_wrapper .dataTables_length,
+        .dataTables_wrapper .dataTables_info,
+        .dataTables_wrapper .dataTables_paginate,
+        .dataTables_wrapper .dt-buttons {
+            display: none !important;
+        }
+
+        .dataTable thead th.action-column {
+            cursor: default !important;
+            padding-right: 0.75rem !important;
+        }
+
+        .dataTable thead th.action-column::before,
+        .dataTable thead th.action-column::after {
+            display: none !important;
+            content: none !important;
+        }
+
+        .sidebar-xs .sidebar-main {
+            width: 0 !important;
+            border: 0 !important;
+            box-shadow: none !important;
+            visibility: hidden !important;
+        }
+
+        .sidebar-xs .sidebar-main .sidebar-content {
+            left: -16.875rem !important;
+            width: 16.875rem !important;
+            overflow: hidden !important;
+            pointer-events: none;
+        }
+
+        .sidebar-xs .sidebar-main .nav-sidebar > .nav-item > .nav-link > i,
+        .sidebar-xs .sidebar-main .nav-sidebar > .nav-item-header > i {
+            display: none !important;
+        }
+
+        .sidebar-xs .sidebar-main .nav-sidebar > .nav-item > .nav-link > span,
+        .sidebar-xs .sidebar-main .nav-sidebar > .nav-item-header > div {
+            display: none !important;
+        }
+
+        .sidebar-xs .sidebar-main .nav-sidebar > .nav-item > .nav-link {
+            justify-content: center;
+            transition: none !important;
+        }
+
+        .sidebar-xs .sidebar-main .nav-sidebar > .nav-item > .nav-link.active,
+        .sidebar-xs .sidebar-main .nav-sidebar > .nav-item-open > .nav-link:not(.disabled) {
+            background: transparent !important;
+            box-shadow: none !important;
+            border: 0 !important;
+            color: inherit !important;
+            transition: none !important;
+        }
+
+        .sidebar-xs .sidebar-main .sidebar-user .media-body {
+            display: none !important;
+        }
+
+        .sidebar-xs .sidebar-main .sidebar-user .media {
+            justify-content: center;
+        }
+    </style>
     <!-- /global stylesheets -->
 
 {{--DatePickers--}}

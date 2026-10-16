@@ -1,7 +1,8 @@
 @extends('layouts.login_master')
 
 @section('content')
-    <div class="page-content login-cover">
+    @php($loginBackground = Qs::getSetting('home_page_login_background'))
+    <div class="page-content login-cover" style="{{ $loginBackground ? "background-image: linear-gradient(rgba(15, 23, 42, 0.45), rgba(15, 23, 42, 0.45)), url('" . e($loginBackground) . "'); background-size: cover; background-position: center; background-repeat: no-repeat;" : '' }}">
 
         <!-- Main content -->
         <div class="content-wrapper">
@@ -32,9 +33,15 @@
                                 <input type="text" class="form-control" name="identity" value="{{ old('identity') }}" placeholder="Login ID or Email">
                             </div>
 
-                            <div class="form-group ">
-                                <input required name="password" type="password" class="form-control" placeholder="{{ __('Password') }}">
-
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <input id="login-password" required name="password" type="password" class="form-control" placeholder="{{ __('Password') }}" autocomplete="current-password">
+                                    <div class="input-group-append">
+                                        <button type="button" id="toggle-login-password" class="btn btn-light" aria-label="Show password" aria-controls="login-password" aria-pressed="false" title="Show password">
+                                            <i class="icon-eye-blocked" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="form-group d-flex align-items-center">
@@ -67,4 +74,21 @@
         </div>
 
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var passwordInput = document.getElementById('login-password');
+            var toggleButton = document.getElementById('toggle-login-password');
+            var icon = toggleButton.querySelector('i');
+
+            toggleButton.addEventListener('click', function () {
+                var showPassword = passwordInput.type === 'password';
+                passwordInput.type = showPassword ? 'text' : 'password';
+                icon.classList.toggle('icon-eye', showPassword);
+                icon.classList.toggle('icon-eye-blocked', !showPassword);
+                toggleButton.setAttribute('aria-pressed', showPassword ? 'true' : 'false');
+                toggleButton.setAttribute('aria-label', showPassword ? 'Hide password' : 'Show password');
+                toggleButton.title = showPassword ? 'Hide password' : 'Show password';
+            });
+        });
+    </script>
     @endsection

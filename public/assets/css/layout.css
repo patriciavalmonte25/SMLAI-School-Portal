@@ -690,6 +690,16 @@ body {
   .sidebar-xs .navbar-sm:first-child ~ .page-content .sidebar-fixed.sidebar-main .nav-sidebar > .nav-item-submenu:hover > .nav-group-sub, .sidebar-xs .navbar-sm:first-child ~ .page-content .sidebar-fixed.sidebar-main .nav-sidebar > .nav-item-submenu:focus > .nav-group-sub {
     top: 2.87503rem; } }
 
+  .sidebar-xs .sidebar-main .nav-sidebar > .nav-item > .nav-link.active > i {
+    display: inline-flex;
+    width: 2.25rem;
+    height: 2.25rem;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    line-height: 1;
+    padding-bottom: 0; }
+
 @media (min-width: 576px) {
   .sidebar-expand-sm.sidebar-main {
     z-index: 99;

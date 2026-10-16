@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
+use App\User;
 use Eloquent;
 
 class TimeTableRecord extends Eloquent
 {
-    protected $fillable = ['name', 'my_class_id', 'exam_id', 'year'];
+    protected $fillable = ['name', 'target_type', 'my_class_id', 'owner_user_id', 'exam_id', 'year', 'timetable_layout'];
 
     public function my_class()
     {
@@ -16,5 +17,10 @@ class TimeTableRecord extends Eloquent
     public function exam()
     {
         return $this->belongsTo(Exam::class);
+    }
+
+    public function owner()
+    {
+        return $this->belongsTo(User::class, 'owner_user_id');
     }
 }

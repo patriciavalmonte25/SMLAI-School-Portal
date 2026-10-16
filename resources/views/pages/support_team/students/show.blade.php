@@ -5,8 +5,6 @@
     <div class="col-md-3 text-center">
         <div class="card">
             <div class="card-body">
-                <img style="width: 90%; height:90%" src="{{ $sr->user->photo }}" alt="photo" class="rounded-circle">
-                <br>
                 <h3 class="mt-3">{{ $sr->user->name }}</h3>
             </div>
         </div>
@@ -26,22 +24,26 @@
                         <table class="table table-bordered">
                             <tbody>
                             <tr>
-                                <td class="font-weight-bold">Name</td>
-                                <td>{{ $sr->user->name }}</td>
-                            </tr>
-                            <tr>
                                 <td class="font-weight-bold">ADM_NO</td>
                                 <td>{{ $sr->adm_no }}</td>
                             </tr>
                             <tr>
                                 <td class="font-weight-bold">Class</td>
-                                <td>{{ $sr->my_class->name.' '.$sr->section->name }}</td>
+                                <td>{{ $sr->my_class->name }}</td>
                             </tr>
-                            @if($sr->my_parent_id)
+                            @if($can_view_parent_links)
                                 <tr>
-                                    <td class="font-weight-bold">Parent</td>
+                                    <td class="font-weight-bold">Parents/Guardians</td>
                                     <td>
-                                        <span><a target="_blank" href="{{ route('users.show', Qs::hash($sr->my_parent_id)) }}">{{ $sr->my_parent->name }}</a></span>
+                                        @if($parents_guardians->isNotEmpty())
+                                            <ul class="mb-0 pl-3">
+                                                @foreach($parents_guardians as $guardian)
+                                                    <li><a class="font-weight-semibold text-primary" href="{{ route('users.show', Qs::hash($guardian->id)) }}">{{ $guardian->name }}</a></li>
+                                                @endforeach
+                                            </ul>
+                                        @else
+                                            <span class="text-muted">No parents/guardians linked</span>
+                                        @endif
                                     </td>
                                 </tr>
                             @endif
@@ -96,12 +98,6 @@
                                 <td class="font-weight-bold">LGA</td>
                                 <td>{{$sr->user->lga->name }}</td>
                             </tr>
-                            @endif
-                            @if($sr->dorm_id)
-                                <tr>
-                                    <td class="font-weight-bold">Dormitory</td>
-                                    <td>{{$sr->dorm->name.' '.$sr->dorm_room_no }}</td>
-                                </tr>
                             @endif
 
                             </tbody>

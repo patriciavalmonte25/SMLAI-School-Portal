@@ -41,8 +41,9 @@
                                 <label for="gender">Gender: <span class="text-danger">*</span></label>
                                 <select class="select form-control" id="gender" name="gender" required data-fouc data-placeholder="Choose..">
                                     <option value=""></option>
-                                    <option {{ (old('gender') == 'Male') ? 'selected' : '' }} value="Male">Male</option>
-                                    <option {{ (old('gender') == 'Female') ? 'selected' : '' }} value="Female">Female</option>
+                                    @foreach($genders as $gender)
+                                        <option {{ (old('gender') == $gender ? 'selected' : '') }} value="{{ $gender }}">{{ $gender }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                         </div>
@@ -67,7 +68,7 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Date of Birth:</label>
-                                <input name="dob" value="{{ old('dob') }}" type="text" class="form-control date-pick" placeholder="Select Date...">
+                                <input name="dob" value="{{ old('dob') }}" type="text" class="form-control date-pick" placeholder="MM/DD/YYYY" autocomplete="off" data-date-format="mm/dd/yyyy">
 
                             </div>
                         </div>
@@ -108,20 +109,13 @@
                                 <label for="bg_id">Blood Group: </label>
                                 <select class="select form-control" id="bg_id" name="bg_id" data-fouc data-placeholder="Choose..">
                                     <option value=""></option>
-                                    @foreach(App\Models\BloodGroup::all() as $bg)
+                                    @foreach($blood_groups as $bg)
                                         <option {{ (old('bg_id') == $bg->id ? 'selected' : '') }} value="{{ $bg->id }}">{{ $bg->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
                         </div>
 
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="d-block">Upload Passport Photo:</label>
-                                <input value="{{ old('photo') }}" accept="image/*" type="file" name="photo" class="form-input-styled" data-fouc>
-                                <span class="form-text text-muted">Accepted Images: jpeg, png. Max file size 2Mb</span>
-                            </div>
-                        </div>
                     </div>
 
                 </fieldset>
@@ -176,24 +170,6 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-3">
-                            <label for="dorm_id">Dormitory: </label>
-                            <select data-placeholder="Choose..."  name="dorm_id" id="dorm_id" class="select-search form-control">
-                                <option value=""></option>
-                                @foreach($dorms as $d)
-                                    <option {{ (old('dorm_id') == $d->id) ? 'selected' : '' }} value="{{ $d->id }}">{{ $d->name }}</option>
-                                    @endforeach
-                            </select>
-
-                        </div>
-
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label>Dormitory Room No:</label>
-                                <input type="text" name="dorm_room_no" placeholder="Dormitory Room No" class="form-control" value="{{ old('dorm_room_no') }}">
-                            </div>
-                        </div>
-
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Sport House:</label>

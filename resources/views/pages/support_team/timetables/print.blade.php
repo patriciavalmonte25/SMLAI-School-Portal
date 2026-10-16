@@ -1,6 +1,6 @@
 <html>
 <head>
-    <title>TimeTable - {{ $ttr->name.' - '.$ttr->year }}</title>
+    <title>Timetable - {{ $ttr->name.' - '.$ttr->year }}</title>
     <style>
         @media print {
 
@@ -43,20 +43,43 @@
                     <strong><span style="color: #000; font-size: 15px;"><i>{{ ucwords($s['address']) }}</i></span></strong><br/>
                     <strong><span style="color: #000; text-decoration: underline; font-size: 15px;"><i>{{ config('app.url') }}/i></span></strong>
                     <br /> <br />
-                    <strong><span style="color: #000; font-size: 15px;"> TIMETABLE FOR {{ strtoupper($my_class->name. ' ('.$ttr->year.')' ) }}
+                    <strong><span style="color: #000; font-size: 15px;"> TIMETABLE FOR {{ strtoupper(($my_class->name ?? optional($timetableOwner)->name ?? 'N/A'). ' ('.$ttr->year.')' ) }}
                     </span></strong>
                 </td>
             </tr>
         </table>
 
-        {{--Background Logo--}}
-        <div style="position: relative;  text-align: center; ">
-            <img src="{{ $s['logo'] }}"
-                 style="max-width: 500px; max-height:600px; margin-top: 60px; position:absolute ; opacity: 0.2; margin-left: auto;margin-right: auto; left: 0; right: 0;" />
-        </div>
-
         {{-- Tabulation Begins --}}
         <table cellpadding="20" style="width:100%; border-collapse:collapse; border: 1px solid #000; margin: 10px auto;" border="1">
+            @if(!empty($use_layout_legacy))
+            <thead>
+            <tr>
+                <th>Time</th>
+                <th>Monday</th>
+                <th>Tuesday</th>
+                <th>Wednesday</th>
+                <th>Thursday</th>
+                <th>Friday</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            @foreach($layout_rows_legacy as $row)
+                <tr>
+                    <td>{{ $row['display_time'] }}</td>
+                    @if(($row['type'] ?? 'subject') === 'blank')
+                        <td colspan="5">{{ $row['blank_subject'] ?? '' }}</td>
+                    @else
+                        <td>{{ $row['monday_subject'] ?? '' }} {{ $row['monday_teacher_name'] ? '('.$row['monday_teacher_name'].')' : '' }}</td>
+                        <td>{{ $row['tuesday_subject'] ?? '' }} {{ $row['tuesday_teacher_name'] ? '('.$row['tuesday_teacher_name'].')' : '' }}</td>
+                        <td>{{ $row['wednesday_subject'] ?? '' }} {{ $row['wednesday_teacher_name'] ? '('.$row['wednesday_teacher_name'].')' : '' }}</td>
+                        <td>{{ $row['thursday_subject'] ?? '' }} {{ $row['thursday_teacher_name'] ? '('.$row['thursday_teacher_name'].')' : '' }}</td>
+                        <td>{{ $row['friday_subject'] ?? '' }} {{ $row['friday_teacher_name'] ? '('.$row['friday_teacher_name'].')' : '' }}</td>
+                    @endif
+                </tr>
+            @endforeach
+            </tbody>
+            @else
             <thead>
             <tr>
                 <th rowspan="2">Time <i class="icon-arrow-right7 ml-2"></i> <br> Date<i class="icon-arrow-down7 ml-2"></i>
@@ -83,6 +106,7 @@
                 </tr>
             @endforeach
             </tbody>
+            @endif
         </table>
     </div>
 </div>

@@ -12,7 +12,8 @@
     @include('partials.login.inc_top')
 </head>
 
-<body>
+@php($loginBackground = Qs::getSetting('home_page_login_background'))
+<body style="{{ $loginBackground ? "background-image: linear-gradient(rgba(15, 23, 42, 0.45), rgba(15, 23, 42, 0.45)), url('" . e($loginBackground) . "'); background-size: cover; background-position: center; background-attachment: fixed;" : '' }}">
 @include('partials.login.header')
 @yield('content')
 @include('partials.login.footer')

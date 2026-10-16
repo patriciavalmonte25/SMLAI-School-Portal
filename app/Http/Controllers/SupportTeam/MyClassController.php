@@ -8,6 +8,7 @@ use App\Http\Requests\MyClass\ClassUpdate;
 use App\Repositories\MyClassRepo;
 use App\Repositories\UserRepo;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 
 class MyClassController extends Controller
 {
@@ -15,8 +16,9 @@ class MyClassController extends Controller
 
     public function __construct(MyClassRepo $my_class, UserRepo $user)
     {
-        $this->middleware('teamSA', ['except' => ['destroy',] ]);
-        $this->middleware('super_admin', ['only' => ['destroy',] ]);
+        $this->middleware('teamSAOrRegistrar', ['except' => ['destroy',] ]);
+        $this->middleware('administrator', ['only' => ['destroy',] ]);
+        $this->middleware('administratorOrRegistrar', ['only' => ['deleteSelected',] ]);
 
         $this->my_class = $my_class;
         $this->user = $user;
@@ -56,10 +58,25 @@ class MyClassController extends Controller
 
     public function update(ClassUpdate $req, $id)
     {
-        $data = $req->only(['name']);
+        $data = $req->only(['name', 'code']);
         $this->my_class->update($id, $data);
 
-        return Qs::jsonUpdateOk();
+        return redirect()->route('classes.index')->with('flash_success', __('msg.update_ok'));
+    }
+
+    public function deleteSelected(Request $request)
+    {
+        $data = $request->validate([
+            'class_ids' => 'required|array|min:1',
+            'class_ids.*' => 'required|integer|distinct|exists:my_classes,id',
+        ]);
+
+        $deleted = 0;
+        foreach ($data['class_ids'] as $classId) {
+            $deleted += $this->my_class->delete($classId);
+        }
+
+        return redirect()->route('classes.index')->with('flash_success', $deleted.' class(es) deleted successfully.');
     }
 
     public function destroy($id)

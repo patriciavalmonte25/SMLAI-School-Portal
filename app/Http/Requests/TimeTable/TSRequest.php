@@ -20,25 +20,21 @@ class TSRequest extends FormRequest
     {
         return [
             'ttr_id' => 'required|exists:time_table_records,id',
-            'hour_from' => 'required|numeric|between:1,12',
+            'hour_from' => 'required|numeric|between:0,23',
             'min_from' => 'required|string|size:2',
-            'meridian_from' => 'required|string|size:2',
-            'hour_to' => 'required|numeric|between:1,12',
+            'hour_to' => 'required|numeric|between:0,23',
             'min_to' => 'required|string|size:2',
-            'meridian_to' => 'required|string|size:2',
         ];
     }
 
     public function attributes()
     {
         return  [
-            'ttr_id' => 'TimeTable Record',
+            'ttr_id' => 'Timetable Record',
             'hour_from' => 'Start Hour',
             'min_from' => 'Start Minute',
-            'meridian_from' => 'Start Meridian',
             'hour_to' => 'End Hour',
             'min_to' => 'End Minute',
-            'meridian_to' => 'End Meridian',
         ];
     }
 

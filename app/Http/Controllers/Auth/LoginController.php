@@ -28,6 +28,13 @@ class LoginController extends Controller
     protected $redirectTo = '/home';
 
     /**
+     * Where to redirect users after logout.
+     *
+     * @var string
+     */
+    protected $redirectAfterLogout = '/';
+
+    /**
      * Create a new controller instance.
      *
      * @return void$field
@@ -35,6 +42,12 @@ class LoginController extends Controller
     public function __construct()
     {
         $this->middleware('guest')->except('logout');
+    }
+
+    public function logout() {
+        auth()->logout();
+
+        return redirect($this->redirectAfterLogout);
     }
 
     /*

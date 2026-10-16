@@ -9,7 +9,7 @@
                     <label class="col-lg-3 col-form-label font-weight-semibold">Exam Date <span
                                 class="text-danger">*</span></label>
                     <div class="col-lg-9">
-                        <input autocomplete="off" name="exam_date" value="{{ old('exam_date') }}" required type="text" class="form-control date-pick" placeholder="Select Date...">
+                        <input autocomplete="off" name="exam_date" value="{{ old('exam_date') }}" required type="text" class="form-control date-pick" placeholder="MM/DD/YYYY" data-date-format="mm/dd/yyyy">
                     </div>
                 </div>
 

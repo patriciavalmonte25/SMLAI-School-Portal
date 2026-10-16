@@ -15,8 +15,16 @@ class SubjectController extends Controller
 
     public function __construct(MyClassRepo $my_class, UserRepo $user)
     {
+        $this->middleware(function ($request, $next) {
+            if (Qs::userIsAdministrator()) {
+                return Qs::goToRoute(['dashboard']);
+            }
+
+            return $next($request);
+        })->only(['index', 'store', 'edit', 'update', 'destroy']);
+
         $this->middleware('teamSA', ['except' => ['destroy',] ]);
-        $this->middleware('super_admin', ['only' => ['destroy',] ]);
+        $this->middleware('administrator', ['only' => ['destroy',] ]);
 
         $this->my_class = $my_class;
         $this->user = $user;

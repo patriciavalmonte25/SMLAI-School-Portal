@@ -39,7 +39,6 @@ class CreateFks extends Migration
             $table->foreign('my_class_id')->references('id')->on('my_classes')->onDelete('cascade');
             $table->foreign('section_id')->references('id')->on('sections')->onDelete('cascade');
             $table->foreign('my_parent_id')->references('id')->on('users')->onDelete('set null');
-            $table->foreign('dorm_id')->references('id')->on('dorms')->onDelete('set null');
         });
 
         Schema::table('marks', function (Blueprint $table) {

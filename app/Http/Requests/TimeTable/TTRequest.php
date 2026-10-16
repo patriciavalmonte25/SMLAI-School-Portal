@@ -31,7 +31,7 @@ class TTRequest extends FormRequest
     {
         return  [
             'subject_id' => 'Subject',
-            'ttr_id' => 'TimeTable Record',
+            'ttr_id' => 'Timetable Record',
             'ts_id' => 'Time Slot',
         ];
     }

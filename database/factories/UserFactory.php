@@ -25,7 +25,7 @@ class UserFactory extends Factory
     public function definition()
     {
         // Create random User Type
-        $user_type = Qs::getStaff(['super_admin', 'librarian'])[rand(0,2)];
+        $user_type = Qs::getStaff(['administrator', 'librarian'])[rand(0,2)];
 
         return [
             'name' => $this->faker->name,

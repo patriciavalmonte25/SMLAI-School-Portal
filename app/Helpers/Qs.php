@@ -5,6 +5,7 @@ namespace App\Helpers;
 use App\Models\Setting;
 use App\Models\StudentRecord;
 use App\Models\Subject;
+use App\User;
 use Hashids\Hashids;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,10 +18,10 @@ class Qs
         }
         return '
                 <div class="alert alert-danger alert-styled-left alert-dismissible">
-									<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
-									<span class="font-weight-semibold">Oops!</span> '.
+                                    <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+                                    <span class="font-weight-semibold">Oops!</span> '.
         implode(' ', $data).'
-							    </div>
+                                </div>
                 ';
     }
 
@@ -36,12 +37,7 @@ class Qs
 
     public static function getPanelOptions()
     {
-        return '    <div class="header-elements">
-                    <div class="list-icons">
-                        <a class="list-icons-item" data-action="collapse"></a>
-                        <a class="list-icons-item" data-action="remove"></a>
-                    </div>
-                </div>';
+        return '';
     }
 
     public static function displaySuccess($msg)
@@ -55,33 +51,32 @@ class Qs
 
     public static function getTeamSA()
     {
-        return ['admin', 'super_admin'];
+        return ['admin', 'administrator'];
     }
 
     public static function getTeamAccount()
     {
-        return ['admin', 'super_admin', 'accountant'];
+        return ['admin', 'administrator', 'accountant'];
     }
 
     public static function getTeamSAT()
     {
-        return ['admin', 'super_admin', 'teacher'];
+        return ['admin', 'administrator', 'teacher'];
     }
 
     public static function getTeamAcademic()
     {
-        return ['admin', 'super_admin', 'teacher', 'student'];
+        return ['admin', 'administrator', 'teacher', 'student'];
     }
 
     public static function getTeamAdministrative()
     {
-        return ['admin', 'super_admin', 'accountant'];
+        return ['admin', 'administrator', 'accountant'];
     }
 
     public static function hash($id)
     {
-        $date = date('dMY').'CJ';
-        $hash = new Hashids($date, 14);
+        $hash = new Hashids('lav_sms_profile_links_v1', 14);
         return $hash->encode($id);
     }
 
@@ -90,6 +85,50 @@ class Qs
         $data = ['name', 'email', 'phone', 'phone2', 'dob', 'gender', 'address', 'bg_id', 'nal_id', 'state_id', 'lga_id'];
 
         return $remove ? array_values(array_diff($data, $remove)) : $data;
+    }
+
+    public static function formatNameFromParts($lastName, $firstNames, $middleName = null)
+    {
+        $last = trim((string) $lastName);
+        $first = trim((string) $firstNames);
+        $middle = trim((string) ($middleName ?? ''));
+
+        $firstMiddle = trim($first.' '.$middle);
+
+        if($last && $firstMiddle){
+            return $last.', '.$firstMiddle;
+        }
+
+        return $last ?: $firstMiddle;
+    }
+
+    public static function formatNameString($name)
+    {
+        $value = trim((string) $name);
+
+        if(!$value){
+            return $value;
+        }
+
+        $value = preg_replace('/\s+/', ' ', $value);
+
+        // Keep already formatted names in LAST, FIRST MIDDLE shape.
+        if(strpos($value, ',') !== false){
+            [$last, $rest] = array_pad(explode(',', $value, 2), 2, '');
+            return self::formatNameFromParts($last, $rest);
+        }
+
+        $parts = explode(' ', $value);
+
+        if(count($parts) === 1){
+            return $parts[0];
+        }
+
+        $last = array_pop($parts);
+        $first = array_shift($parts);
+        $middle = implode(' ', $parts);
+
+        return self::formatNameFromParts($last, $first, $middle);
     }
 
     public static function getStaffRecord($remove = [])
@@ -101,7 +140,7 @@ class Qs
 
     public static function getStudentData($remove = [])
     {
-        $data = ['my_class_id', 'section_id', 'my_parent_id', 'dorm_id', 'dorm_room_no', 'year_admitted', 'house', 'age'];
+        $data = ['my_class_id', 'section_id', 'my_parent_id', 'year_admitted', 'house', 'age'];
 
         return $remove ? array_values(array_diff($data, $remove)) : $data;
 
@@ -109,8 +148,7 @@ class Qs
 
     public static function decodeHash($str, $toString = true)
     {
-        $date = date('dMY').'CJ';
-        $hash = new Hashids($date, 14);
+        $hash = new Hashids('lav_sms_profile_links_v1', 14);
         $decoded = $hash->decode($str);
         return $toString ? implode(',', $decoded) : $decoded;
     }
@@ -150,9 +188,19 @@ class Qs
         return Auth::user()->user_type;
     }
 
-    public static function userIsSuperAdmin()
+    public static function userIsAdministrator()
     {
-        return Auth::user()->user_type == 'super_admin';
+        return Auth::user()->user_type == 'administrator';
+    }
+
+    public static function userIsAccountant()
+    {
+        return Auth::user()->user_type == 'accountant';
+    }
+
+    public static function userIsRegistrar()
+    {
+        return Auth::user()->user_type == 'registrar';
     }
 
     public static function userIsStudent()
@@ -177,17 +225,17 @@ class Qs
 
     public static function getStaff($remove=[])
     {
-        $data =  ['super_admin', 'admin', 'teacher', 'accountant', 'librarian'];
+        $data =  ['administrator', 'registrar', 'admin', 'teacher', 'accountant', 'librarian'];
         return $remove ? array_values(array_diff($data, $remove)) : $data;
     }
 
     public static function getAllUserTypes($remove=[])
     {
-        $data =  ['super_admin', 'admin', 'teacher', 'accountant', 'librarian', 'student', 'parent'];
+        $data =  ['administrator', 'registrar', 'admin', 'teacher', 'accountant', 'librarian', 'student', 'parent'];
         return $remove ? array_values(array_diff($data, $remove)) : $data;
     }
 
-    // Check if User is Head of Super Admins (Untouchable)
+    // Check if User is the primary administrator (untouchable).
     public static function headSA(int $user_id)
     {
         return $user_id === 1;
@@ -201,7 +249,12 @@ class Qs
     public static function userIsMyChild($student_id, $parent_id)
     {
         $data = ['user_id' => $student_id, 'my_parent_id' =>$parent_id];
-        return StudentRecord::where($data)->exists();
+        if(StudentRecord::where($data)->exists()) {
+            return true;
+        }
+
+        $student = User::whereKey($student_id)->first();
+        return $student && $student->parents()->where('users.id', $parent_id)->exists();
     }
 
     public static function getSRByUserID($user_id)
@@ -211,7 +264,7 @@ class Qs
 
     public static function getPTA()
     {
-        return ['super_admin', 'admin', 'teacher', 'parent'];
+        return ['administrator', 'registrar', 'admin', 'teacher', 'parent'];
     }
 
     /*public static function filesToUpload($programme)
@@ -258,12 +311,14 @@ class Qs
 
     public static function getSetting($type)
     {
-        return Setting::where('type', $type)->first()->description;
+        $setting = Setting::where('type', $type)->first();
+        return $setting ? $setting->description : '';
     }
 
     public static function getCurrentSession()
     {
-        return self::getSetting('current_session');
+        $value = self::getSetting('current_session');
+        return $value ?: date('Y');
     }
 
     public static function getNextSession()
@@ -280,7 +335,16 @@ class Qs
 
     public static function findMyChildren($parent_id)
     {
-        return StudentRecord::where('my_parent_id', $parent_id)->with(['user', 'my_class'])->get();
+        $studentIds = User::whereKey($parent_id)->first()
+            ? User::find($parent_id)->children()->pluck('users.id')
+            : collect();
+
+        return StudentRecord::where(function ($query) use ($parent_id, $studentIds) {
+            $query->where('my_parent_id', $parent_id);
+            if($studentIds->isNotEmpty()) {
+                $query->orWhereIn('user_id', $studentIds);
+            }
+        })->with(['user', 'my_class'])->get();
     }
 
     public static function findTeacherSubjects($teacher_id)

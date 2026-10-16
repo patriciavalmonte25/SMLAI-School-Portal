@@ -22,10 +22,32 @@ class SettingController extends Controller
     {
          $s = $this->setting->all();
          $d['class_types'] = $this->my_class->getTypes();
-         $d['s'] = $s->flatMap(function($s){
-            return [$s->type => $s->description];
-        });
-        return view('pages.super_admin.settings', $d);
+
+         $settings = $s->mapWithKeys(function ($setting) {
+             return [$setting->type => $setting->description];
+         })->toArray();
+
+         $defaults = [
+             'system_name' => '',
+             'system_title' => '',
+             'phone' => '',
+             'system_email' => '',
+             'address' => '',
+             'lock_exam' => 0,
+             'logo' => '',
+         ];
+
+         $settings = array_replace($defaults, $settings);
+
+         foreach ($d['class_types'] as $ct) {
+             $feeKey = 'next_term_fees_' . strtolower($ct->code);
+             if (!array_key_exists($feeKey, $settings)) {
+                 $settings[$feeKey] = '';
+             }
+         }
+
+         $d['s'] = $settings;
+         return view('pages.super_admin.settings', $d);
     }
 
     public function update(SettingUpdate $req)

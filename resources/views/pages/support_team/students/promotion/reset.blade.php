@@ -23,7 +23,6 @@
                 <thead>
                 <tr>
                     <th>S/N</th>
-                    <th>Photo</th>
                     <th>Name</th>
                     <th>From Class</th>
                     <th>To Class</th>
@@ -35,7 +34,6 @@
                 @foreach($promotions->sortBy('fc.name')->sortBy('student.name') as $p)
                     <tr>
                         <td>{{ $loop->iteration }}</td>
-                        <td><img class="rounded-circle" style="height: 40px; width: 40px;" src="{{ $p->student->photo }}" alt="photo"></td>
                         <td>{{ $p->student->name }}</td>
                         <td>{{ $p->fc->name.' '.$p->fs->name }}</td>
                         <td>{{ $p->tc->name.' '.$p->ts->name }}</td>

@@ -21,6 +21,7 @@ class ClassUpdate extends FormRequest
     {
         return [
             'name' => 'required|string|min:3',
+            'code' => 'required|string|min:1|max:20',
         ];
     }
 }

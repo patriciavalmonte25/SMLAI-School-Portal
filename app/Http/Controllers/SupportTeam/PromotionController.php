@@ -15,6 +15,14 @@ class PromotionController extends Controller
 
     public function __construct(MyClassRepo $my_class, StudentRepo $student)
     {
+        $this->middleware(function ($request, $next) {
+            if (Qs::userIsAdministrator()) {
+                return Qs::goToRoute(['dashboard']);
+            }
+
+            return $next($request);
+        })->only(['promotion', 'selector', 'promote', 'manage', 'reset', 'reset_all']);
+
         $this->middleware('teamSA');
 
         $this->my_class = $my_class;

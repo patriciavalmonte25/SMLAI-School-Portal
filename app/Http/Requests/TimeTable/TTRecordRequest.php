@@ -18,23 +18,19 @@ class TTRecordRequest extends FormRequest
      */
     public function rules()
     {
-        if($this->method() === 'POST'){
-            return [
-                'name' => 'required|string|min:3|unique:time_table_records',
-                'my_class_id' => 'required',
-            ];
-        }
-
         return [
-            'name' => 'required|string|min:3|unique:time_table_records,name,'.$this->ttr,
-            'my_class_id' => 'required',
+            'target_type' => 'required|in:class,teacher',
+            'my_class_id' => 'required_if:target_type,class|nullable|exists:my_classes,id',
+            'owner_user_id' => 'required_if:target_type,teacher|nullable|exists:users,id',
         ];
     }
 
     public function attributes()
     {
         return  [
+            'target_type' => 'Timetable Type',
             'my_class_id' => 'Class',
+            'owner_user_id' => 'Teacher/Administrator',
         ];
     }
 

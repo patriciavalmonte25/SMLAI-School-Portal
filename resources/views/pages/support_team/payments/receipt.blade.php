@@ -46,11 +46,6 @@
             <span style="font-weight:bold; font-size: 20px; color: #000; padding-left: 10px">STUDENT INFORMATION</span>
         </div>
 
-        {{--Photo--}}
-        <div style="margin: 15px;">
-            <img style="width: 100px; height: 100px; float: left;" src="{{ $sr->user->photo }}" alt="...">
-        </div>
-
        <div style="float: left; margin-left: 20px">
            <table style="font-size: 16px" class="td-left" cellspacing="5" cellpadding="5">
                <tr>

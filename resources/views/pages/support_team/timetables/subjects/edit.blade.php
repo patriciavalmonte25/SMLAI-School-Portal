@@ -1,5 +1,5 @@
 <div class="tab-pane fade" id="edit-subs">
-    {{--If TimeTables Exist--}}
+    {{--If Timetables Exist--}}
     @if($tts->count())
         @foreach($tts->chunk(2) as $chunk)
             <div class="row">
@@ -38,7 +38,7 @@
                                                     <input autocomplete="off" name="exam_date"
                                                            value="{{ $tt->exam_date }}" required
                                                            type="text" class="form-control date-pick"
-                                                           placeholder="Select Date...">
+                                                           placeholder="MM/DD/YYYY" data-date-format="mm/dd/yyyy">
                                                 </div>
                                             </div>
 
@@ -108,7 +108,7 @@
             </div>
         @endforeach
     @else
-        <div class="alert alert-info text-center">There are NO Records to Display. Add Subjects To The TimeTable Record
+        <div class="alert alert-info text-center">There are NO Records to Display. Add Subjects To The Timetable Record
             & Refresh the page
         </div>
     @endif

@@ -29,22 +29,13 @@ class UsersTableSeeder extends Seeder
 
         $d = [
 
-            ['name' => 'Super Admin Valmonte',
-                'email' => 'valmonte@superadmin.com',
-                'username' => 'valmonte',
+            ['name' => 'Admin Valmonte',
+                'email' => 'admin@school.com',
+                'username' => 'admin',
                 'password' => $password,
-                'user_type' => 'super_admin',
+                'user_type' => 'admin',
                 'code' => strtoupper(Str::random(10)),
                 'remember_token' => Str::random(10),
-            ],
-
-            ['name' => 'Admin KORA',
-            'email' => 'admin@admin.com',
-            'password' => $password,
-            'user_type' => 'admin',
-            'username' => 'admin',
-            'code' => strtoupper(Str::random(10)),
-            'remember_token' => Str::random(10),
             ],
 
             ['name' => 'Teacher Chike',
@@ -65,14 +56,7 @@ class UsersTableSeeder extends Seeder
                 'remember_token' => Str::random(10),
             ],
 
-            ['name' => 'Accountant Jeff',
-                'email' => 'accountant@accountant.com',
-                'user_type' => 'accountant',
-                'username' => 'accountant',
-                'password' => $password,
-                'code' => strtoupper(Str::random(10)),
-                'remember_token' => Str::random(10),
-            ],
+            // Accountant and Librarian users removed per project roles cleanup
         ];
         DB::table('users')->insert($d);
     }
@@ -80,7 +64,7 @@ class UsersTableSeeder extends Seeder
     protected function createManyUsers(int $count)
     {
         $data = [];
-        $user_type = Qs::getAllUserTypes(['super_admin', 'librarian', 'student']);
+        $user_type = Qs::getAllUserTypes(['student']);
 
         for($i = 1; $i <= $count; $i++){
 

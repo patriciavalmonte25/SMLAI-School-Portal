@@ -20,17 +20,6 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="current_session" class="col-lg-3 col-form-label font-weight-semibold">Current Session <span class="text-danger">*</span></label>
-                            <div class="col-lg-9">
-                                <select data-placeholder="Choose..." required name="current_session" id="current_session" class="select-search form-control">
-                                    <option value=""></option>
-                                    @for($y=date('Y', strtotime('- 3 years')); $y<=date('Y', strtotime('+ 1 years')); $y++)
-                                        <option {{ ($s['current_session'] == (($y-=1).'-'.($y+=1))) ? 'selected' : '' }}>{{ ($y-=1).'-'.($y+=1) }}</option>
-                                    @endfor
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group row">
                             <label class="col-lg-3 col-form-label font-weight-semibold">School Acronym</label>
                             <div class="col-lg-9">
                                 <input name="system_title" value="{{ $s['system_title'] }}" type="text" class="form-control" placeholder="School Acronym">
@@ -55,24 +44,6 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label class="col-lg-3 col-form-label font-weight-semibold">This Term Ends</label>
-                            <div class="col-lg-6">
-                                <input name="term_ends" value="{{ $s['term_ends'] }}" type="text" class="form-control date-pick" placeholder="Date Term Ends">
-                            </div>
-                            <div class="col-lg-3 mt-2">
-                                <span class="font-weight-bold font-italic">M-D-Y or M/D/Y </span>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label class="col-lg-3 col-form-label font-weight-semibold">Next Term Begins</label>
-                            <div class="col-lg-6">
-                                <input name="term_begins" value="{{ $s['term_begins'] }}" type="text" class="form-control date-pick" placeholder="Date Term Ends">
-                            </div>
-                            <div class="col-lg-3 mt-2">
-                                <span class="font-weight-bold font-italic">M-D-Y or M/D/Y </span>
-                            </div>
-                        </div>
-                        <div class="form-group row">
                             <label for="lock_exam" class="col-lg-3 col-form-label font-weight-semibold">Lock Exam</label>
                             <div class="col-lg-3">
                                 <select class="form-control select" name="lock_exam" id="lock_exam">
@@ -86,20 +57,6 @@
                         </div>
                 </div>
                 <div class="col-md-6">
-                    {{--Fees--}}
-               <fieldset>
-                   <legend><strong>Next Term Fees</strong></legend>
-                   @foreach($class_types as $ct)
-                   <div class="form-group row">
-                       <label class="col-lg-3 col-form-label font-weight-semibold">{{ $ct->name }}</label>
-                       <div class="col-lg-9">
-                           <input class="form-control" value="{{ $s['next_term_fees_'.strtolower($ct->code)] }}" name="next_term_fees_{{ strtolower($ct->code) }}" placeholder="{{ $ct->name }}" type="text">
-                       </div>
-                   </div>
-                       @endforeach
-               </fieldset>
-                    <hr class="divider">
-
                     {{--Logo--}}
                     <div class="form-group row">
                         <label class="col-lg-3 col-form-label font-weight-semibold">Change Logo:</label>

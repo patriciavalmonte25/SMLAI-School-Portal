@@ -23,11 +23,11 @@
                             <label class="col-lg-3 col-form-label font-weight-semibold">Start Time <span
                                         class="text-danger">*</span></label>
 
-                            <div class="col-lg-3">
+                            <div class="col-lg-6">
                                 <select data-placeholder="Hour" required class="select-search form-control" name="hour_from" id="hour_from">
 
                                     <option value=""></option>
-                                    @for($t=1; $t<=12; $t++)
+                                    @for($t=0; $t<=23; $t++)
                                         <option {{ old('hour_from') == $t ? 'selected' : '' }} value="{{ $t }}">{{ $t}}</option>
                                     @endfor
                                 </select>
@@ -45,27 +45,17 @@
                                 </select>
                             </div>
 
-                            <div class="col-lg-3">
-                                <select data-placeholder="Meridian" required class="select form-control" name="meridian_from" id="meridian_from">
-
-                                    <option value=""></option>
-                                    <option {{ old('meridian_from') == 'AM' ? 'selected' : '' }} value="AM">AM
-                                    </option>
-                                    <option {{ old('meridian_from') == 'PM' ? 'selected' : '' }} value="PM">PM
-                                    </option>
-                                </select>
-                            </div>
                         </div>
 
                         {{--TIME END--}}
                         <div class="form-group row">
                             <label class="col-lg-3 col-form-label font-weight-semibold">End Time <span class="text-danger">*</span></label>
 
-                            <div class="col-lg-3">
+                            <div class="col-lg-6">
                                 <select data-placeholder="Hour" required class="select-search form-control" name="hour_to" id="hour_to">
 
                                     <option value=""></option>
-                                    @for($t=1; $t<=12; $t++)
+                                    @for($t=0; $t<=23; $t++)
                                         <option {{ old('hour_to') == $t ? 'selected' : '' }} value="{{ $t }}">{{ $t}}</option>
                                     @endfor
                                 </select>
@@ -83,17 +73,6 @@
                                 </select>
                             </div>
 
-                            <div class="col-lg-3">
-                                <select data-placeholder="Meridian" required class="select form-control"
-                                        name="meridian_to" id="meridian_to">
-
-                                    <option value=""></option>
-                                    <option {{ old('meridian_to') == 'AM' ? 'selected' : '' }} value="AM">AM
-                                    </option>
-                                    <option {{ old('meridian_to') == 'PM' ? 'selected' : '' }} value="PM">PM
-                                    </option>
-                                </select>
-                            </div>
                         </div>
 
 

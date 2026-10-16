@@ -12,7 +12,7 @@ class MyClassRepo
 
     public function all()
     {
-        return MyClass::orderBy('name', 'asc')->with('class_type')->get();
+        return MyClass::schoolOrder()->with('class_type')->get();
     }
 
     public function getMC($data)
@@ -84,12 +84,12 @@ class MyClassRepo
 
     public function getAllSections()
     {
-        return Section::orderBy('name', 'asc')->with(['my_class', 'teacher'])->get();
+        return Section::orderBy('id')->with(['my_class', 'teacher'])->get();
     }
 
     public function getClassSections($class_id)
     {
-        return Section::where(['my_class_id' => $class_id])->orderBy('name', 'asc')->get();
+        return Section::where(['my_class_id' => $class_id])->orderBy('id')->get();
     }
 
     /************* Subject *******************/

@@ -3,18 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\Qs;
+use App\Models\StudentEnrollment;
 use App\Repositories\LocationRepo;
 use App\Repositories\MyClassRepo;
+use App\Repositories\StudentRepo;
+use App\User;
 use Illuminate\Support\Facades\Auth;
 
 class AjaxController extends Controller
 {
-    protected $loc, $my_class;
+    protected $loc, $my_class, $student;
 
-    public function __construct(LocationRepo $loc, MyClassRepo $my_class)
+    public function __construct(LocationRepo $loc, MyClassRepo $my_class, StudentRepo $student)
     {
         $this->loc = $loc;
         $this->my_class = $my_class;
+        $this->student = $student;
     }
 
     public function get_lga($state_id)
@@ -53,6 +57,29 @@ class AjaxController extends Controller
         })->all();
 
         return $d;
+    }
+
+    public function get_class_students($class_id)
+    {
+        $studentRecords = $this->student->findStudentsByClass($class_id);
+        $enrolledStudentIds = StudentEnrollment::where('my_class_id', $class_id)
+            ->whereNotNull('enrolled_student_user_id')
+            ->pluck('enrolled_student_user_id');
+
+        $studentIds = $studentRecords->pluck('user_id')
+            ->concat($enrolledStudentIds)
+            ->unique()
+            ->filter();
+
+        return User::whereIn('id', $studentIds)
+            ->where('user_type', 'student')
+            ->get()
+            ->sortBy('name')
+            ->map(function ($user) {
+                return ['id' => Qs::hash($user->id), 'name' => $user->name];
+            })
+            ->values()
+            ->all();
     }
 
 }

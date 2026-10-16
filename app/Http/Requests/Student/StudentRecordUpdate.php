@@ -4,6 +4,7 @@ namespace App\Http\Requests\Student;
 
 use Illuminate\Foundation\Http\FormRequest;
 use App\Helpers\Qs;
+use App\Models\StudentRecord;
 
 class StudentRecordUpdate extends FormRequest
 {
@@ -20,8 +21,12 @@ class StudentRecordUpdate extends FormRequest
      */
     public function rules()
     {
+        $studentRecordId = Qs::decodeHash($this->route('student'));
+        $studentUserId = StudentRecord::whereKey($studentRecordId)->value('user_id');
+
         return [
             'name' => 'required|string|min:6|max:150',
+            'username' => 'sometimes|nullable|alpha_dash|min:3|max:100|unique:users,username,'.$studentUserId,
             'gender' => 'required|string',
             'phone' => 'sometimes|nullable|string|min:6|max:20',
             'email' => 'sometimes|nullable|email|max:100|unique:users,id',
@@ -34,7 +39,6 @@ class StudentRecordUpdate extends FormRequest
             'lga_id' => 'required',
             'nal_id' => 'required',
             'my_parent_id' => 'sometimes|nullable',
-            'dorm_id' => 'sometimes|nullable',
         ];
     }
 
@@ -42,7 +46,6 @@ class StudentRecordUpdate extends FormRequest
     {
         return  [
             'nal_id' => 'Nationality',
-            'dorm_id' => 'Dormitory',
             'state_id' => 'State',
             'lga_id' => 'LGA',
             'bg_id' => 'Blood Group',

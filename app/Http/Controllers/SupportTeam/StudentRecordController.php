@@ -4,6 +4,9 @@ namespace App\Http\Controllers\SupportTeam;
 
 use App\Helpers\Qs;
 use App\Helpers\Mk;
+use App\User;
+use App\Models\StudentEnrollment;
+use App\Models\StudentRecord;
 use App\Http\Requests\Student\StudentRecordCreate;
 use App\Http\Requests\Student\StudentRecordUpdate;
 use App\Repositories\LocationRepo;
@@ -11,6 +14,7 @@ use App\Repositories\MyClassRepo;
 use App\Repositories\StudentRepo;
 use App\Repositories\UserRepo;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -22,8 +26,16 @@ class StudentRecordController extends Controller
 
    public function __construct(LocationRepo $loc, MyClassRepo $my_class, UserRepo $user, StudentRepo $student)
    {
-       $this->middleware('teamSA', ['only' => ['edit','update', 'reset_pass', 'create', 'store', 'graduated'] ]);
-       $this->middleware('super_admin', ['only' => ['destroy',] ]);
+       $this->middleware(function ($request, $next) {
+           if (Qs::userIsAdministrator()) {
+               return Qs::goToRoute(['dashboard']);
+           }
+
+           return $next($request);
+       })->only(['create', 'store', 'listByClass', 'graduated', 'edit', 'update', 'destroy', 'not_graduated', 'reset_pass']);
+
+    $this->middleware('teamSAOrRegistrar', ['only' => ['edit','update', 'reset_pass', 'create', 'store', 'graduated'] ]);
+       $this->middleware('administrator', ['only' => ['destroy',] ]);
 
         $this->loc = $loc;
         $this->my_class = $my_class;
@@ -43,9 +55,10 @@ class StudentRecordController extends Controller
     {
         $data['my_classes'] = $this->my_class->all();
         $data['parents'] = $this->user->getUserByType('parent');
-        $data['dorms'] = $this->student->getAllDorms();
         $data['states'] = $this->loc->getStates();
         $data['nationals'] = $this->loc->getAllNationals();
+        $data['blood_groups'] = $this->user->getBloodGroups();
+        $data['genders'] = ['Male', 'Female'];
         return view('pages.support_team.students.add', $data);
     }
 
@@ -78,17 +91,21 @@ class StudentRecordController extends Controller
 
         $sr['adm_no'] = $data['username'];
         $sr['user_id'] = $user->id;
-        $sr['session'] = Qs::getSetting('current_session');
+        $sr['session'] = Qs::getCurrentSession();
 
         $this->student->createRecord($sr); // Create Student
+        if(!empty($sr['my_parent_id'])) {
+            $user->parents()->syncWithoutDetaching([$sr['my_parent_id']]);
+        }
         return Qs::jsonStoreOk();
     }
 
     public function listByClass($class_id)
     {
-        $data['my_class'] = $mc = $this->my_class->getMC(['id' => $class_id])->first();
+        $data['my_class'] = $mc = $this->my_class->getMC(['id' => $class_id])->with('adviser')->first();
         $data['students'] = $this->student->findStudentsByClass($class_id);
         $data['sections'] = $this->my_class->getClassSections($class_id);
+        $data['advisor'] = $mc ? ($mc->adviser ?: $mc->section->firstWhere('teacher_id')?->teacher) : null;
 
         return is_null($mc) ? Qs::goWithDanger() : view('pages.support_team.students.list', $data);
     }
@@ -101,11 +118,41 @@ class StudentRecordController extends Controller
         return view('pages.support_team.students.graduated', $data);
     }
 
+    public function registrarIndex()
+    {
+        $students = User::where('user_type', 'student')
+            ->with(['student_record.my_class', 'student_record.section', 'student_enrollment.my_class'])
+            ->orderBy('name', 'asc')
+            ->get();
+
+        return view('pages.registrar.students.index', compact('students'));
+    }
+
+    public function deleteSelectedStudents(Request $request)
+    {
+        $data = $request->validate([
+            'user_ids' => 'required|array|min:1',
+            'user_ids.*' => 'integer|exists:users,id',
+        ]);
+
+        $students = User::whereIn('id', $data['user_ids'])
+            ->where('user_type', 'student')
+            ->get();
+
+        foreach ($students as $student) {
+            $path = Qs::getUploadPath('student').$student->code;
+            Storage::exists($path) ? Storage::deleteDirectory($path) : false;
+            $this->user->delete($student->id);
+        }
+
+        return back()->with('flash_success', $students->count().' student accounts deleted successfully.');
+    }
+
     public function not_graduated($sr_id)
     {
         $d['grad'] = 0;
         $d['grad_date'] = NULL;
-        $d['session'] = Qs::getSetting('current_session');
+        $d['session'] = Qs::getCurrentSession();
         $this->student->updateRecord($sr_id, $d);
 
         return back()->with('flash_success', __('msg.update_ok'));
@@ -117,9 +164,31 @@ class StudentRecordController extends Controller
         if(!$sr_id){return Qs::goWithDanger();}
 
         $data['sr'] = $this->student->getRecord(['id' => $sr_id])->first();
+        $isStaffProfileViewer = in_array(Auth::user()->user_type, ['admin', 'administrator', 'teacher', 'accountant', 'registrar']);
+        $data['can_view_parent_links'] = $isStaffProfileViewer;
+        $data['parents_guardians'] = collect();
+        if($isStaffProfileViewer) {
+            $parentIds = $data['sr']->user->parents()->pluck('users.id')
+                ->merge(StudentRecord::where('user_id', $data['sr']->user_id)
+                    ->whereNotNull('my_parent_id')
+                    ->pluck('my_parent_id'));
+            $enrollments = StudentEnrollment::where(function ($query) use ($data) {
+                $query->where('enrolled_student_user_id', $data['sr']->user_id)
+                    ->orWhere('user_id', $data['sr']->user_id);
+            })->get();
+            foreach($enrollments as $enrollment) {
+                $parentIds = $parentIds->merge(
+                    $enrollment->accounts()->wherePivot('account_type', 'Parent')->pluck('users.id')
+                );
+            }
+            $data['parents_guardians'] = User::whereIn('id', $parentIds->unique()->values())
+                ->where('user_type', 'parent')
+                ->orderBy('name')
+                ->get();
+        }
 
         /* Prevent Other Students/Parents from viewing Profile of others */
-        if(Auth::user()->id != $data['sr']->user_id && !Qs::userIsTeamSAT() && !Qs::userIsMyChild($data['sr']->user_id, Auth::user()->id)){
+        if(Auth::user()->id != $data['sr']->user_id && !$isStaffProfileViewer && !Qs::userIsMyChild($data['sr']->user_id, Auth::user()->id)){
             return redirect(route('dashboard'))->with('pop_error', __('msg.denied'));
         }
 
@@ -134,9 +203,10 @@ class StudentRecordController extends Controller
         $data['sr'] = $this->student->getRecord(['id' => $sr_id])->first();
         $data['my_classes'] = $this->my_class->all();
         $data['parents'] = $this->user->getUserByType('parent');
-        $data['dorms'] = $this->student->getAllDorms();
         $data['states'] = $this->loc->getStates();
         $data['nationals'] = $this->loc->getAllNationals();
+        $data['blood_groups'] = $this->user->getBloodGroups();
+        $data['genders'] = ['Male', 'Female'];
         return view('pages.support_team.students.edit', $data);
     }
 
@@ -148,6 +218,9 @@ class StudentRecordController extends Controller
         $sr = $this->student->getRecord(['id' => $sr_id])->first();
         $d =  $req->only(Qs::getUserRecord());
         $d['name'] = ucwords($req->name);
+        if (Qs::userIsRegistrar() && $req->filled('username')) {
+            $d['username'] = $req->username;
+        }
 
         if($req->hasFile('photo')) {
             $photo = $req->file('photo');
@@ -162,6 +235,28 @@ class StudentRecordController extends Controller
         $srec = $req->only(Qs::getStudentData());
 
         $this->student->updateRecord($sr_id, $srec); // Update St Rec
+        if(array_key_exists('my_parent_id', $srec)) {
+            $oldParentId = (int) $sr->my_parent_id;
+            $newParentId = (int) $srec['my_parent_id'];
+            if($oldParentId && $oldParentId !== $newParentId) {
+                $sr->user->parents()->detach($oldParentId);
+                StudentEnrollment::where(function ($query) use ($sr) {
+                    $query->where('enrolled_student_user_id', $sr->user_id)
+                        ->orWhere('user_id', $sr->user_id);
+                })->get()->each(function ($enrollment) use ($oldParentId) {
+                    $enrollment->accounts()->detach($oldParentId);
+                });
+            }
+            if($newParentId) {
+                $sr->user->parents()->syncWithoutDetaching([$newParentId]);
+                StudentEnrollment::where(function ($query) use ($sr) {
+                    $query->where('enrolled_student_user_id', $sr->user_id)
+                        ->orWhere('user_id', $sr->user_id);
+                })->get()->each(function ($enrollment) use ($newParentId) {
+                    $enrollment->accounts()->syncWithoutDetaching([$newParentId => ['account_type' => 'Parent']]);
+                });
+            }
+        }
 
         /*** If Class/Section is Changed in Same Year, Delete Marks/ExamRecord of Previous Class/Section ****/
         Mk::deleteOldRecord($sr->user->id, $srec['my_class_id']);

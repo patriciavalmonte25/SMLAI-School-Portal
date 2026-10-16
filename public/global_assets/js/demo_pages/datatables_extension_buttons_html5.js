@@ -27,12 +27,13 @@ var DatatableButtonsHtml5 = function() {
         // Setting datatable defaults
         $.extend( $.fn.dataTable.defaults, {
             autoWidth: false,
-            dom: '<"datatable-header"fBl><"datatable-scroll"t><"datatable-footer"ip>',
+            paging: false,
+            info: false,
+            lengthChange: false,
+            dom: '<"datatable-header"f><"datatable-scroll"t>',
             language: {
                 search: '<span>Filter:</span> _INPUT_',
-                searchPlaceholder: 'Type to filter...',
-                lengthMenu: '<span>Show:</span> _MENU_',
-                paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' }
+                searchPlaceholder: 'Type to filter...'
             }
         });
 
@@ -82,27 +83,10 @@ var DatatableButtonsHtml5 = function() {
 
         // Column selectors
         $('.datatable-button-html5-columns').DataTable({
-            buttons: {            
-                buttons: [
-                    {
-                        extend: 'copyHtml5',
-                        className: 'btn btn-light'
-                    },
-                    {
-                        extend: 'excelHtml5',
-                        className: 'btn btn-light'
-                    },
-                    {
-                        extend: 'pdfHtml5',
-                        className: 'btn btn-light'
-                    },
-                    {
-                        extend: 'colvis',
-                        text: '<i class="icon-three-bars"></i> Visibility',
-                        className: 'btn bg-blue btn-icon dropdown-toggle'
-                    }
-                ]
-            }
+            paging: false,
+            info: false,
+            lengthChange: false,
+            dom: '<"datatable-header"f><"datatable-scroll"t>'
         });
 
 
